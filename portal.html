@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MarKei IT — Team Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --bg: #08080d;
+    --surface: #0f0f17;
+    --surface2: #16161f;
+    --border: rgba(255,255,255,0.06);
+    --border-active: rgba(255,255,255,0.15);
+    --text: #ededf2;
+    --text-muted: #6e6d84;
+    --text-dim: #3d3c52;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --accent-glow: rgba(108,92,231,0.12);
+    --teal: #00cec9;
+    --green: #00b894;
+    --amber: #fdcb6e;
+    --red: #e17055;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --r: 10px;
+    --r-lg: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6; overflow-x: hidden; }
+
+  /* ── Ambient background ── */
+  .ambient {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 20%, rgba(108,92,231,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 80% 80%, rgba(0,206,201,0.05) 0%, transparent 60%);
+  }
+
+  /* ── Header ── */
+  header {
+    position: relative; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 60px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,8,13,0.8);
+    backdrop-filter: blur(16px);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-mark {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #fff;
+  }
+  .logo-text { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  .logo-badge {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--accent-light);
+    background: var(--accent-glow); border: 1px solid rgba(108,92,231,0.2);
+    padding: 2px 8px; border-radius: 20px;
+  }
+  .header-nav { display: flex; align-items: center; gap: 8px; }
+  .nav-link {
+    font-size: 13px; color: var(--text-muted); text-decoration: none;
+    padding: 5px 12px; border-radius: 8px; transition: all .15s;
+  }
+  .nav-link:hover { color: var(--text); background: var(--surface2); }
+
+  /* ── Sign-in screen ── */
+  #signin-screen {
+    position: relative; z-index: 10;
+    min-height: calc(100vh - 60px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem;
+  }
+  .signin-card {
+    width: 100%; max-width: 400px;
+    background: var(--surface);
+    border: 1px solid var(--border-active);
+    border-radius: 20px;
+    padding: 2.5rem;
+    text-align: center;
+  }
+  .signin-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--accent-glow);
+    border: 1px solid rgba(108,92,231,0.25);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 24px;
+  }
+  .signin-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .signin-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.7; }
+  .signin-divider {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 1.5rem; font-size: 12px; color: var(--text-dim);
+  }
+  .signin-divider::before, .signin-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  #google-btn-wrap { display: flex; justify-content: center; margin-bottom: 1rem; }
+  .signin-note { font-size: 11px; color: var(--text-dim); margin-top: 1.5rem; }
+  .signin-note a { color: var(--text-muted); }
+  #access-denied {
+    display: none;
+    margin-top: 1rem; padding: 10px 14px;
+    background: rgba(225,112,85,0.1);
+    border: 1px solid rgba(225,112,85,0.2);
+    border-radius: var(--r);
+    font-size: 12px; color: var(--red); text-align: center;
+  }
+
+  /* ── Portal (authenticated) ── */
+  #portal-screen { display: none; position: relative; z-index: 10; }
+
+  /* Portal header bar */
+  .portal-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 2rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .user-pill {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text-muted);
+  }
+  .user-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: #fff; overflow: hidden;
+  }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .signout-btn {
+    font-size: 12px; color: var(--text-muted); cursor: pointer;
+    padding: 4px 10px; border-radius: 6px;
+    border: 1px solid var(--border); background: none;
+    font-family: var(--font); transition: all .15s;
+  }
+  .signout-btn:hover { color: var(--text); border-color: var(--border-active); }
+
+  /* Portal layout */
+  .portal-layout { display: flex; min-height: calc(100vh - 60px - 49px); }
+  .portal-sidebar {
+    width: 220px; min-width: 220px;
+    border-right: 1px solid var(--border);
+    padding: 1.25rem 0.75rem;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .sidebar-section {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-dim);
+    padding: 0 10px; margin: 12px 0 4px;
+  }
+  .sidebar-section:first-child { margin-top: 0; }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 10px; border-radius: 8px;
+    font-size: 13px; color: var(--text-muted);
+    cursor: pointer; transition: all .15s;
+    border: 1px solid transparent; user-select: none;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active {
+    background: var(--accent-glow); color: var(--accent-light);
+    border-color: rgba(108,92,231,0.18);
+  }
+  .sidebar-icon { width: 16px; text-align: center; font-size: 14px; flex-shrink: 0; }
+
+  /* Portal main */
+  .portal-main { flex: 1; padding: 2rem; max-width: 900px; overflow-y: auto; }
+  .tool-panel { display: none; }
+  .tool-panel.active { display: block; }
+
+  /* Welcome panel */
+  .welcome-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 1.5rem; }
+  .welcome-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1.25rem;
+    cursor: pointer; transition: all .2s;
+  }
+  .welcome-card:hover { border-color: var(--border-active); transform: translateY(-1px); }
+  .welcome-card .wc-icon { font-size: 22px; margin-bottom: 10px; }
+  .welcome-card .wc-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .welcome-card .wc-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .welcome-card.featured { border-color: rgba(108,92,231,0.25); background: var(--accent-glow); }
+  .welcome-card.featured .wc-title { color: var(--accent-light); }
+
+  /* ── Pipeline tool (embedded) ── */
+  .tool-header { margin-bottom: 1.5rem; }
+  .tool-title { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .tool-desc { font-size: 13px; color: var(--text-muted); }
+
+  /* Pipeline tabs */
+  .pip-tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+  .pip-tab {
+    padding: 8px 16px; font-size: 13px; font-weight: 500;
+    cursor: pointer; border: none; background: none;
+    color: var(--text-muted); border-bottom: 2px solid transparent;
+    margin-bottom: -1px; transition: all .15s; font-family: var(--font);
+  }
+  .pip-tab.active { color: var(--text); border-bottom-color: var(--accent-light); }
+  .pip-tab:hover:not(.active) { color: var(--text); }
+
+  /* pipeline step panels */
+  .pip-panel { display: none; }
+  .pip-panel.active { display: block; }
+
+  /* cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1.25rem; margin-bottom: 1rem;
+  }
+  .card-title {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--text-dim); margin-bottom: 1rem;
+  }
+
+  /* form */
+  .field { margin-bottom: 12px; }
+  .field:last-child { margin-bottom: 0; }
+  .fg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .fg3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .lbl { display: block; font-size: 11px; font-weight: 500; color: var(--text-muted); margin-bottom: 5px; letter-spacing: 0.02em; }
+  input[type=text], input[type=number], select, textarea {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 8px 12px; font-size: 13px;
+    color: var(--text); font-family: var(--font); transition: border-color .15s;
+    -webkit-appearance: none; appearance: none;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,92,231,0.12); }
+  textarea { resize: vertical; min-height: 78px; line-height: 1.6; }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236e6d84' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; cursor: pointer;
+  }
+  select option { background: #16161f; }
+  .checks { display: flex; flex-direction: column; gap: 4px; }
+  .check-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-muted);
+    padding: 5px 8px; border-radius: 7px; cursor: pointer; transition: all .15s;
+  }
+  .check-row:hover { background: var(--surface2); color: var(--text); }
+  .check-row input[type=checkbox] { width: 13px; height: 13px; accent-color: var(--accent); cursor: pointer; }
+
+  /* buttons */
+  .btn {
+    padding: 9px 18px; font-size: 13px; font-weight: 500;
+    border-radius: var(--r); cursor: pointer; transition: all .15s;
+    font-family: var(--font); border: 1px solid var(--border-active);
+    background: transparent; color: var(--text);
+  }
+  .btn:hover { background: var(--surface2); }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+  .btn-primary {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+    box-shadow: 0 0 20px rgba(108,92,231,0.22);
+  }
+  .btn-primary:hover { background: #7d6ef0; box-shadow: 0 0 28px rgba(108,92,231,0.38); }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+  .btn-row { display: flex; align-items: center; gap: 10px; margin-top: 1rem; }
+
+  /* tiers */
+  .tier-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1rem; }
+  .tier-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 1rem; cursor: pointer; transition: all .18s;
+  }
+  .tier-card:hover { border-color: var(--border-active); }
+  .tier-card.selected { border-color: var(--accent); background: var(--accent-glow); box-shadow: 0 0 20px rgba(108,92,231,0.12); }
+  .t-label { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .t-price { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+  .t-price span { font-size: 12px; font-weight: 400; color: var(--text-muted); }
+  .tier-card.selected .t-label { color: var(--accent-light); }
+  .tier-card.selected .t-price { color: var(--accent-light); }
+  .t-feats { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+  .t-feat { font-size: 11px; color: var(--text-muted); display: flex; gap: 5px; }
+  .t-feat::before { content: '–'; color: var(--text-dim); flex-shrink: 0; }
+  .tier-card.selected .t-feat { color: rgba(162,155,254,0.65); }
+  .pop-pill {
+    display: inline-block; padding: 2px 7px;
+    background: rgba(108,92,231,0.18); color: var(--accent-light);
+    border-radius: 20px; font-size: 10px; font-weight: 600; letter-spacing: .04em; margin-bottom: 4px;
+  }
+
+  /* metrics */
+  .metric-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1.25rem; }
+  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 14px; }
+  .metric .mval { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+  .metric .mlbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* price summary */
+  .price-line { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .price-line .pl { color: var(--text-muted); }
+  .price-total { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 0 0; font-weight: 600; }
+  .price-big { font-size: 26px; letter-spacing: -0.02em; color: var(--accent-light); }
+  .annual-note { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+
+  /* output */
+  .out-wrap { margin-top: 1.25rem; }
+  .out-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .out-label { font-size: 10px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-dim); }
+  .out-box {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 1.25rem;
+    font-size: 13px; line-height: 1.8; color: var(--text);
+    white-space: pre-wrap; font-family: var(--mono);
+    max-height: 460px; overflow-y: auto;
+  }
+  .out-box::-webkit-scrollbar { width: 4px; }
+  .out-box::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 2px; }
+
+  /* loading */
+  .loading { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 15px; height: 15px; border: 2px solid var(--border-active); border-top-color: var(--accent-light); border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
+  .badge-ok { padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; background: rgba(0,184,148,0.14); color: var(--green); }
+  .badge-err { padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; background: rgba(225,112,85,0.14); color: var(--red); }
+
+  /* ── API key settings ── */
+  .settings-section { margin-bottom: 2rem; }
+  .settings-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .settings-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 1rem; }
+  .api-field { display: flex; gap: 8px; }
+  .api-field input { flex: 1; font-family: var(--mono); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+
+<!-- ── Main Header ── -->
+<header>
+  <a href="https://markeiit.markeienterprises.com" class="logo">
+    <div class="logo-mark">M</div>
+    <span class="logo-text">MarKei IT</span>
+  </a>
+  <div class="header-nav">
+    <span class="logo-badge">Team Portal</span>
+    <a href="https://markeiit.markeienterprises.com" class="nav-link">← Back to site</a>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════
+     SIGN-IN SCREEN
+═══════════════════════════════════════ -->
+<div id="signin-screen">
+  <div class="signin-card">
+    <div class="signin-icon">🔐</div>
+    <div class="signin-title">Team portal</div>
+    <div class="signin-desc">Sign in with your authorized Google account to access the MarKei IT client pipeline tools.</div>
+    <div class="signin-divider">authorized access only</div>
+    <div id="google-btn-wrap"></div>
+    <div id="access-denied">
+      That Google account is not authorized. Contact Keion to request access.
+    </div>
+    <div class="signin-note">Protected by Google OAuth 2.0 · MFA enforced via your Google account</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PORTAL (shown after auth)
+═══════════════════════════════════════ -->
+<div id="portal-screen">
+  <!-- User bar -->
+  <div class="portal-topbar">
+    <div class="user-pill">
+      <div class="user-avatar" id="user-avatar-wrap">
+        <span id="user-initials">?</span>
+      </div>
+      <span id="user-name-display">Loading...</span>
+    </div>
+    <button class="signout-btn" onclick="signOut()">Sign out</button>
+  </div>
+
+  <div class="portal-layout">
+    <!-- Sidebar -->
+    <nav class="portal-sidebar">
+      <div class="sidebar-section">Tools</div>
+      <div class="sidebar-item active" id="snav-home" onclick="switchPortalTab('home')">
+        <span class="sidebar-icon">⌂</span> Dashboard
+      </div>
+      <div class="sidebar-item" id="snav-pipeline" onclick="switchPortalTab('pipeline')">
+        <span class="sidebar-icon">◈</span> Client pipeline
+      </div>
+      <div class="sidebar-section">Pipeline steps</div>
+      <div class="sidebar-item" id="snav-assess" onclick="switchPortalTab('pipeline'); switchPipTab('assess')">
+        <span class="sidebar-icon">①</span> IT assessment
+      </div>
+      <div class="sidebar-item" id="snav-price" onclick="switchPortalTab('pipeline'); switchPipTab('price')">
+        <span class="sidebar-icon">②</span> Pricing
+      </div>
+      <div class="sidebar-item" id="snav-proposal" onclick="switchPortalTab('pipeline'); switchPipTab('proposal')">
+        <span class="sidebar-icon">③</span> Proposal
+      </div>
+      <div class="sidebar-item" id="snav-sop" onclick="switchPortalTab('pipeline'); switchPipTab('sop')">
+        <span class="sidebar-icon">④</span> SOP builder
+      </div>
+      <div class="sidebar-section">Account</div>
+      <div class="sidebar-item" id="snav-settings" onclick="switchPortalTab('settings')">
+        <span class="sidebar-icon">⚙</span> Settings
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="portal-main">
+
+      <!-- Dashboard -->
+      <div id="tp-home" class="tool-panel active">
+        <div class="tool-header">
+          <div class="tool-title">Good to see you, <span id="welcome-first">there</span>.</div>
+          <div class="tool-desc">MarKei IT client pipeline — assessments, pricing, proposals, and SOPs in one place.</div>
+        </div>
+        <div class="welcome-grid">
+          <div class="welcome-card featured" onclick="switchPortalTab('pipeline')">
+            <div class="wc-icon">◈</div>
+            <div class="wc-title">Client pipeline</div>
+            <div class="wc-desc">Full workflow: assess a prospect, price the engagement, generate a proposal, build delivery SOPs.</div>
+          </div>
+          <div class="welcome-card" onclick="switchPortalTab('pipeline'); switchPipTab('assess')">
+            <div class="wc-icon">📋</div>
+            <div class="wc-title">IT assessment</div>
+            <div class="wc-desc">Generate a professional assessment report from a client conversation in minutes.</div>
+          </div>
+          <div class="welcome-card" onclick="switchPortalTab('pipeline'); switchPipTab('proposal')">
+            <div class="wc-icon">📝</div>
+            <div class="wc-title">Proposal generator</div>
+            <div class="wc-desc">Claude-powered pitch letters tailored to the client's pain points and your selected tier.</div>
+          </div>
+          <div class="welcome-card" onclick="switchPortalTab('pipeline'); switchPipTab('sop')">
+            <div class="wc-icon">📁</div>
+            <div class="wc-title">SOP builder</div>
+            <div class="wc-desc">Generate field-ready standard operating procedures for any client environment.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipeline tool -->
+      <div id="tp-pipeline" class="tool-panel">
+        <div class="tool-header">
+          <div class="tool-title">Client pipeline</div>
+          <div class="tool-desc">Follow the steps: assess → price → propose → SOP delivery.</div>
+        </div>
+
+        <div class="pip-tabs">
+          <button class="pip-tab active" id="ptab-assess" onclick="switchPipTab('assess')">① Assessment</button>
+          <button class="pip-tab" id="ptab-price" onclick="switchPipTab('price')">② Pricing</button>
+          <button class="pip-tab" id="ptab-proposal" onclick="switchPipTab('proposal')">③ Proposal</button>
+          <button class="pip-tab" id="ptab-sop" onclick="switchPipTab('sop')">④ SOP</button>
+        </div>
+
+        <!-- ASSESS -->
+        <div class="pip-panel active" id="pp-assess">
+          <div class="card">
+            <div class="card-title">Client information</div>
+            <div class="fg2">
+              <div class="field"><label class="lbl">Business name</label><input type="text" id="biz-name" placeholder="Acme Property Mgmt"/></div>
+              <div class="field"><label class="lbl">Contact name</label><input type="text" id="contact-name" placeholder="John Smith"/></div>
+            </div>
+            <div class="fg3">
+              <div class="field"><label class="lbl">Business type</label>
+                <select id="biz-type">
+                  <option value="small_business">Small business</option>
+                  <option value="retirement">Retirement community</option>
+                  <option value="apartment">Apartment complex</option>
+                  <option value="medical">Medical / dental office</option>
+                  <option value="nonprofit">Nonprofit</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="field"><label class="lbl">Users</label><input type="number" id="num-users" placeholder="10" min="1"/></div>
+              <div class="field"><label class="lbl">Devices</label><input type="number" id="num-devices" placeholder="12" min="1"/></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Environment & pain points</div>
+            <div class="fg2">
+              <div class="field">
+                <label class="lbl">Operating systems</label>
+                <div class="checks" style="margin-top:4px">
+                  <label class="check-row"><input type="checkbox" id="os-win" checked> Windows</label>
+                  <label class="check-row"><input type="checkbox" id="os-mac"> macOS</label>
+                  <label class="check-row"><input type="checkbox" id="os-mixed"> Mixed environment</label>
+                </div>
+              </div>
+              <div class="field">
+                <label class="lbl">Pain points</label>
+                <div class="checks" style="margin-top:4px">
+                  <label class="check-row"><input type="checkbox" id="pain-security" checked> No security / antivirus</label>
+                  <label class="check-row"><input type="checkbox" id="pain-backup"> No backup solution</label>
+                  <label class="check-row"><input type="checkbox" id="pain-support"> Slow / no IT support</label>
+                  <label class="check-row"><input type="checkbox" id="pain-email"> Email / spam issues</label>
+                  <label class="check-row"><input type="checkbox" id="pain-wifi"> Network / WiFi problems</label>
+                  <label class="check-row"><input type="checkbox" id="pain-mdm"> No device management</label>
+                </div>
+              </div>
+            </div>
+            <div class="field" style="margin-top:12px">
+              <label class="lbl">Notes from your conversation</label>
+              <textarea id="assess-notes" placeholder="e.g. Had a ransomware scare last year, using a consumer router, high staff turnover..."></textarea>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="btn-assess" onclick="runAssessment()">Generate assessment</button>
+            <div id="st-assess"></div>
+          </div>
+          <div id="out-assess" class="out-wrap" style="display:none">
+            <div class="out-header">
+              <div class="out-label">Assessment</div>
+              <button class="btn btn-sm" onclick="copyOut('res-assess', this)">Copy</button>
+            </div>
+            <div class="out-box" id="res-assess"></div>
+            <div class="btn-row"><button class="btn btn-primary" onclick="switchPipTab('price')">Continue to pricing →</button></div>
+          </div>
+        </div>
+
+        <!-- PRICE -->
+        <div class="pip-panel" id="pp-price">
+          <div class="metric-row">
+            <div class="metric"><div class="mval" id="m-users">—</div><div class="mlbl">Users</div></div>
+            <div class="metric"><div class="mval" id="m-devices">—</div><div class="mlbl">Devices</div></div>
+            <div class="metric"><div class="mval" id="m-rec">—</div><div class="mlbl">Recommended tier</div></div>
+          </div>
+          <div class="tier-grid">
+            <div class="tier-card" id="tier-essential" onclick="selectTier('essential',199)">
+              <div class="t-label">Essential</div>
+              <div class="t-price">$199<span>/mo</span></div>
+              <div class="t-feats">
+                <div class="t-feat">Remote helpdesk (8 hrs/mo)</div>
+                <div class="t-feat">Patch management</div>
+                <div class="t-feat">Antivirus deployment</div>
+                <div class="t-feat">Monthly health report</div>
+                <div class="t-feat">Up to 5 devices</div>
+              </div>
+            </div>
+            <div class="tier-card selected" id="tier-professional" onclick="selectTier('professional',449)">
+              <div class="pop-pill">Most popular</div>
+              <div class="t-label">Professional</div>
+              <div class="t-price">$449<span>/mo</span></div>
+              <div class="t-feats">
+                <div class="t-feat">Unlimited remote support</div>
+                <div class="t-feat">MDM + device management</div>
+                <div class="t-feat">Backup monitoring</div>
+                <div class="t-feat">Security awareness training</div>
+                <div class="t-feat">Priority response (4 hr)</div>
+                <div class="t-feat">Up to 15 devices</div>
+              </div>
+            </div>
+            <div class="tier-card" id="tier-enterprise" onclick="selectTier('enterprise',849)">
+              <div class="t-label">Enterprise</div>
+              <div class="t-price">$849<span>/mo</span></div>
+              <div class="t-feats">
+                <div class="t-feat">Everything in Professional</div>
+                <div class="t-feat">On-site visits (2/mo)</div>
+                <div class="t-feat">Network management</div>
+                <div class="t-feat">Compliance reporting</div>
+                <div class="t-feat">Dedicated account mgmt</div>
+                <div class="t-feat">Unlimited devices</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Add-ons</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <label class="check-row"><input type="checkbox" id="add-onsite" onchange="recalc()"> On-site setup / migration <span style="color:var(--text-dim);font-size:11px;margin-left:4px">+$350 one-time</span></label>
+              <label class="check-row"><input type="checkbox" id="add-email" onchange="recalc()"> Microsoft 365 admin <span style="color:var(--text-dim);font-size:11px;margin-left:4px">+$75/mo</span></label>
+              <label class="check-row"><input type="checkbox" id="add-backup" onchange="recalc()"> Cloud backup per device <span style="color:var(--text-dim);font-size:11px;margin-left:4px">+$8/device/mo</span></label>
+              <label class="check-row"><input type="checkbox" id="add-cyber" onchange="recalc()"> Cybersecurity assessment <span style="color:var(--text-dim);font-size:11px;margin-left:4px">+$499 one-time</span></label>
+              <label class="check-row"><input type="checkbox" id="add-web" onchange="recalc()"> Website design / hosting <span style="color:var(--text-dim);font-size:11px;margin-left:4px">+$150/mo</span></label>
+              <label class="check-row"><input type="checkbox" id="add-training" onchange="recalc()"> Staff IT training session <span style="color:var(--text-dim);font-size:11px;margin-left:4px">+$199 one-time</span></label>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Pricing summary</div>
+            <div class="price-line"><span class="pl">Base retainer</span><span id="p-base">$449/mo</span></div>
+            <div class="price-line"><span class="pl">Monthly add-ons</span><span id="p-addons">$0/mo</span></div>
+            <div class="price-line"><span class="pl">One-time fees</span><span id="p-onetime">$0</span></div>
+            <div class="price-total"><span>Total monthly</span><span class="price-big" id="p-total">$449/mo</span></div>
+            <div class="annual-note" id="p-annual"></div>
+          </div>
+          <div class="btn-row"><button class="btn btn-primary" onclick="switchPipTab('proposal')">Continue to proposal →</button></div>
+        </div>
+
+        <!-- PROPOSAL -->
+        <div class="pip-panel" id="pp-proposal">
+          <div class="card">
+            <div class="card-title">Proposal settings</div>
+            <div class="fg2">
+              <div class="field"><label class="lbl">Tone</label>
+                <select id="prop-tone">
+                  <option value="professional">Professional / formal</option>
+                  <option value="friendly">Friendly / conversational</option>
+                  <option value="urgent">Urgent / risk-focused</option>
+                </select>
+              </div>
+              <div class="field"><label class="lbl">Emphasis</label>
+                <select id="prop-focus">
+                  <option value="value">Value and ROI</option>
+                  <option value="security">Security and risk</option>
+                  <option value="support">Reliability and support</option>
+                  <option value="growth">Growth and scalability</option>
+                </select>
+              </div>
+            </div>
+            <div class="field"><label class="lbl">Additional context</label>
+              <textarea id="prop-notes" placeholder="e.g. Competing with local shop, owner is cost-conscious, wants someone local..."></textarea>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="btn-proposal" onclick="runProposal()">Generate proposal</button>
+            <div id="st-proposal"></div>
+          </div>
+          <div id="out-proposal" class="out-wrap" style="display:none">
+            <div class="out-header">
+              <div class="out-label">Client proposal</div>
+              <button class="btn btn-sm" onclick="copyOut('res-proposal', this)">Copy</button>
+            </div>
+            <div class="out-box" id="res-proposal"></div>
+            <div class="btn-row"><button class="btn btn-primary" onclick="switchPipTab('sop')">Continue to SOP →</button></div>
+          </div>
+        </div>
+
+        <!-- SOP -->
+        <div class="pip-panel" id="pp-sop">
+          <div class="card">
+            <div class="card-title">SOP configuration</div>
+            <div class="fg2">
+              <div class="field"><label class="lbl">SOP type</label>
+                <select id="sop-type">
+                  <option value="onboarding">Client onboarding</option>
+                  <option value="offboarding">Device offboarding</option>
+                  <option value="incident">Security incident response</option>
+                  <option value="backup">Backup verification</option>
+                  <option value="patch">Patch management</option>
+                  <option value="new_user">New user setup</option>
+                  <option value="network">Network troubleshooting</option>
+                </select>
+              </div>
+              <div class="field"><label class="lbl">Detail level</label>
+                <select id="sop-detail">
+                  <option value="standard">Standard (technician-level)</option>
+                  <option value="detailed">Detailed (step-by-step)</option>
+                  <option value="brief">Brief (checklist only)</option>
+                </select>
+              </div>
+            </div>
+            <div class="field"><label class="lbl">Client-specific context</label>
+              <textarea id="sop-context" placeholder="e.g. Microsoft 365, Meraki networking, Windows 11 Pro, 12 workstations, no on-prem server..."></textarea>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="btn-sop" onclick="runSOP()">Generate SOP</button>
+            <div id="st-sop"></div>
+          </div>
+          <div id="out-sop" class="out-wrap" style="display:none">
+            <div class="out-header">
+              <div class="out-label">Standard operating procedure</div>
+              <button class="btn btn-sm" onclick="copyOut('res-sop', this)">Copy</button>
+            </div>
+            <div class="out-box" id="res-sop"></div>
+          </div>
+        </div>
+
+      </div><!-- /tp-pipeline -->
+
+      <!-- Settings -->
+      <div id="tp-settings" class="tool-panel">
+        <div class="tool-header">
+          <div class="tool-title">Settings</div>
+          <div class="tool-desc">Configure your API key and portal preferences.</div>
+        </div>
+        <div class="card settings-section">
+          <div class="card-title">Anthropic API key</div>
+          <div class="settings-desc">Your key is stored in your browser only and sent directly to Anthropic — never to any third party. Get your key at <strong>console.anthropic.com</strong>.</div>
+          <div class="api-field">
+            <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off"/>
+            <button class="btn btn-primary" onclick="saveApiKey()">Save</button>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:8px" id="key-status"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Authorized accounts</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.7">
+            Access is controlled by the <code style="font-family:var(--mono);font-size:12px;color:var(--accent-light)">ALLOWED_EMAILS</code> list in the page source. To add team members, add their Google email to that array and redeploy.
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════
+// CONFIG — edit these
+// ════════════════════════════════════
+
+// 1. Replace with your Google OAuth Client ID from console.cloud.google.com
+const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+
+// 2. Add every Google email that should have access
+const ALLOWED_EMAILS = [
+  'keion@markeienterprises.com',
+  // 'marissa@markeienterprises.com',
+  // add more as needed
+];
+
+// ════════════════════════════════════
+// STATE
+// ════════════════════════════════════
+let apiKey = localStorage.getItem('markei_api_key') || '';
+let selectedTier = 'professional';
+let selectedPrice = 449;
+
+// ════════════════════════════════════
+// GOOGLE SIGN-IN
+// ════════════════════════════════════
+window.onload = function() {
+  if (typeof google !== 'undefined') initGoogle();
+  else document.querySelector('script[src*="gsi"]').addEventListener('load', initGoogle);
+  if (apiKey) document.getElementById('key-status').textContent = 'API key loaded from browser storage.';
+};
+
+function initGoogle() {
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleCredential,
+    auto_select: false,
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('google-btn-wrap'),
+    { theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'rectangular', width: 280 }
+  );
+}
+
+function parseJwt(token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+  } catch { return null; }
+}
+
+function handleCredential(response) {
+  const payload = parseJwt(response.credential);
+  if (!payload) return;
+  const email = payload.email?.toLowerCase();
+  const allowed = ALLOWED_EMAILS.map(e => e.toLowerCase());
+  if (!allowed.includes(email)) {
+    document.getElementById('access-denied').style.display = 'block';
+    return;
+  }
+  // Authenticated — show portal
+  document.getElementById('signin-screen').style.display = 'none';
+  document.getElementById('portal-screen').style.display = 'block';
+
+  // Set user info
+  const firstName = payload.given_name || payload.name?.split(' ')[0] || 'there';
+  document.getElementById('welcome-first').textContent = firstName;
+  document.getElementById('user-name-display').textContent = payload.name || email;
+  document.getElementById('user-initials').textContent = (payload.given_name?.[0] || '') + (payload.family_name?.[0] || '');
+  if (payload.picture) {
+    document.getElementById('user-avatar-wrap').innerHTML = `<img src="${payload.picture}" alt="avatar">`;
+  }
+}
+
+function signOut() {
+  if (typeof google !== 'undefined') google.accounts.id.disableAutoSelect();
+  document.getElementById('portal-screen').style.display = 'none';
+  document.getElementById('signin-screen').style.display = 'flex';
+  document.getElementById('access-denied').style.display = 'none';
+}
+
+// ════════════════════════════════════
+// PORTAL NAVIGATION
+// ════════════════════════════════════
+function switchPortalTab(id) {
+  ['home','pipeline','settings'].forEach(t => {
+    document.getElementById('tp-'+t).classList.toggle('active', t===id);
+    const nav = document.getElementById('snav-'+t);
+    if (nav) nav.classList.toggle('active', t===id);
+  });
+}
+
+function switchPipTab(id) {
+  ['assess','price','proposal','sop'].forEach(t => {
+    document.getElementById('pp-'+t).classList.toggle('active', t===id);
+    document.getElementById('ptab-'+t).classList.toggle('active', t===id);
+  });
+  if (id === 'price') syncPriceFromAssess();
+}
+
+// ════════════════════════════════════
+// PRICING
+// ════════════════════════════════════
+function syncPriceFromAssess() {
+  const u = parseInt(document.getElementById('num-users').value) || 0;
+  const d = parseInt(document.getElementById('num-devices').value) || 0;
+  document.getElementById('m-users').textContent = u || '—';
+  document.getElementById('m-devices').textContent = d || '—';
+  if (d > 0 && d <= 5) { selectTier('essential',199); document.getElementById('m-rec').textContent = 'Essential'; }
+  else if (d > 5 && d <= 15) { selectTier('professional',449); document.getElementById('m-rec').textContent = 'Professional'; }
+  else if (d > 15) { selectTier('enterprise',849); document.getElementById('m-rec').textContent = 'Enterprise'; }
+  else { document.getElementById('m-rec').textContent = '—'; }
+  recalc();
+}
+
+function selectTier(name, price) {
+  selectedTier = name; selectedPrice = price;
+  ['essential','professional','enterprise'].forEach(t =>
+    document.getElementById('tier-'+t).classList.toggle('selected', t===name));
+  recalc();
+}
+
+function recalc() {
+  let mo = selectedPrice, ot = 0;
+  const d = parseInt(document.getElementById('num-devices').value) || 0;
+  if (document.getElementById('add-onsite').checked) ot += 350;
+  if (document.getElementById('add-email').checked) mo += 75;
+  if (document.getElementById('add-backup').checked) mo += d * 8;
+  if (document.getElementById('add-cyber').checked) ot += 499;
+  if (document.getElementById('add-web').checked) mo += 150;
+  if (document.getElementById('add-training').checked) ot += 199;
+  document.getElementById('p-base').textContent = '$'+selectedPrice+'/mo';
+  document.getElementById('p-addons').textContent = '$'+(mo-selectedPrice)+'/mo';
+  document.getElementById('p-onetime').textContent = '$'+ot;
+  document.getElementById('p-total').textContent = '$'+mo+'/mo';
+  document.getElementById('p-annual').textContent = 'Annual contract value: $'+Math.round(mo*12).toLocaleString()+' + $'+ot+' in setup fees';
+}
+
+// ════════════════════════════════════
+// API KEY
+// ════════════════════════════════════
+function saveApiKey() {
+  const v = document.getElementById('api-key-input').value.trim();
+  if (v) {
+    apiKey = v;
+    localStorage.setItem('markei_api_key', v);
+    document.getElementById('key-status').textContent = 'Saved. Key stored in browser only.';
+    document.getElementById('api-key-input').value = '';
+  }
+}
+
+// ════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════
+function getCtx() {
+  const pains = [];
+  if (document.getElementById('pain-security').checked) pains.push('no security/antivirus');
+  if (document.getElementById('pain-backup').checked) pains.push('no backup');
+  if (document.getElementById('pain-support').checked) pains.push('no IT support');
+  if (document.getElementById('pain-email').checked) pains.push('email/spam issues');
+  if (document.getElementById('pain-wifi').checked) pains.push('network/WiFi issues');
+  if (document.getElementById('pain-mdm').checked) pains.push('no device management');
+  const os = [];
+  if (document.getElementById('os-win').checked) os.push('Windows');
+  if (document.getElementById('os-mac').checked) os.push('macOS');
+  if (document.getElementById('os-mixed').checked) os.push('mixed');
+  const btMap = {small_business:'small business',retirement:'retirement community',apartment:'apartment complex',medical:'medical/dental office',nonprofit:'nonprofit',other:'organization'};
+  return {
+    bizName: document.getElementById('biz-name').value || 'the client',
+    contact: document.getElementById('contact-name').value || 'Decision Maker',
+    bizType: btMap[document.getElementById('biz-type').value],
+    users: document.getElementById('num-users').value || '?',
+    devices: document.getElementById('num-devices').value || '?',
+    os: os.join(', ') || 'unspecified',
+    pains: pains.join(', ') || 'general IT needs',
+    notes: document.getElementById('assess-notes').value
+  };
+}
+
+function setLoading(sid, bid, on) {
+  document.getElementById(bid).disabled = on;
+  document.getElementById(sid).innerHTML = on
+    ? '<div class="loading"><div class="spinner"></div>Generating with Claude...</div>' : '';
+}
+function setDone(sid, ok) {
+  document.getElementById(sid).innerHTML = ok
+    ? '<span class="badge-ok">Done</span>'
+    : '<span class="badge-err">Error — check API key in Settings</span>';
+}
+
+async function callClaude(prompt, sid, bid) {
+  if (!apiKey) {
+    switchPortalTab('settings');
+    alert('Add your Anthropic API key in Settings first.');
+    return null;
+  }
+  setLoading(sid, bid, true);
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await r.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.content?.map(b => b.text||'').join('') || '';
+    setLoading(sid, bid, false);
+    setDone(sid, true);
+    return text;
+  } catch(e) {
+    setLoading(sid, bid, false);
+    setDone(sid, false);
+    return null;
+  }
+}
+
+function copyOut(id, btn) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1600);
+  });
+}
+
+// ════════════════════════════════════
+// GENERATORS
+// ════════════════════════════════════
+async function runAssessment() {
+  const c = getCtx();
+  const prompt = `You are Keion Williams, founder of MarKei IT Services, a certified IT professional (A+, Network+, Security+, PMP, ITIL v4) based in Baltimore, MD. Write an internal IT assessment summary for a prospective client.
+
+Client: ${c.bizName} (${c.bizType}) | Contact: ${c.contact}
+Users: ${c.users} | Devices: ${c.devices} | OS: ${c.os}
+Pain points: ${c.pains}
+Notes: ${c.notes || 'None provided'}
+
+Write a concise professional assessment with:
+1. Environment summary (2-3 sentences)
+2. Key risks identified (bullet points, specific)
+3. Recommended immediate priorities (3-5 items, ranked)
+4. Closing statement positioning MarKei IT as the solution
+
+Under 400 words. First person, presenting to client. Plain text, no markdown headers.`;
+
+  const result = await callClaude(prompt, 'st-assess', 'btn-assess');
+  if (result) {
+    document.getElementById('res-assess').textContent = result;
+    document.getElementById('out-assess').style.display = 'block';
+  }
+}
+
+async function runProposal() {
+  const c = getCtx();
+  const toneMap = { professional:'formal and professional', friendly:'friendly and conversational', urgent:'urgent, emphasizing risk and cost of inaction' };
+  const focusMap = { value:'value and ROI', security:'security risks and liability', support:'reliability and peace of mind', growth:'scalability' };
+  const tierNames = { essential:'Essential ($199/mo)', professional:'Professional ($449/mo)', enterprise:'Enterprise ($849/mo)' };
+
+  const prompt = `You are Keion Williams, founder of MarKei IT Services, a certified IT professional (A+, Network+, Security+, PMP, ITIL v4), 10+ years experience, Baltimore MD. Write a client proposal letter.
+
+Client: ${c.bizName} | Contact: ${c.contact} | Type: ${c.bizType}
+Users: ${c.users} | Devices: ${c.devices} | Pain points: ${c.pains}
+Recommended tier: ${tierNames[selectedTier]}
+Tone: ${toneMap[document.getElementById('prop-tone').value]}
+Emphasis: ${focusMap[document.getElementById('prop-focus').value]}
+Extra context: ${document.getElementById('prop-notes').value || 'None'}
+
+Write a complete proposal letter (250-350 words):
+- Strong personalized opening referencing their specific situation
+- What MarKei IT will do for them
+- Recommended tier and key deliverables
+- Address primary concerns
+- Clear call to action (schedule 30-min call or sign agreement)
+- P.S. line with urgency or added value
+
+Sign off: Keion Williams, MarKei IT Services | keion@markeienterprises.com | markeienterprises.com
+Plain text, natural paragraph breaks, no markdown.`;
+
+  const result = await callClaude(prompt, 'st-proposal', 'btn-proposal');
+  if (result) {
+    document.getElementById('res-proposal').textContent = result;
+    document.getElementById('out-proposal').style.display = 'block';
+  }
+}
+
+async function runSOP() {
+  const c = getCtx();
+  const sopMap = { onboarding:'Client onboarding', offboarding:'Device offboarding', incident:'Security incident response', backup:'Backup verification', patch:'Patch management', new_user:'New user setup', network:'Network troubleshooting' };
+  const detailMap = { standard:'Standard for experienced technician', detailed:'Fully detailed step-by-step with exact paths and commands', brief:'Checklist format only' };
+
+  const prompt = `You are Keion Williams, founder of MarKei IT Services. Write an internal SOP for your technician team.
+
+SOP type: ${sopMap[document.getElementById('sop-type').value]}
+Detail level: ${detailMap[document.getElementById('sop-detail').value]}
+Client context: ${document.getElementById('sop-context').value || `Generic client — ${c.devices} devices, ${c.os}`}
+
+Write a complete field-ready SOP:
+- Title and purpose (1 sentence)
+- Scope
+- Required tools/access
+- Step-by-step procedure (numbered)
+- Completion checklist
+- Escalation path
+
+Plain text. ALL CAPS section headers. Practical and field-ready.`;
+
+  const result = await callClaude(prompt, 'st-sop', 'btn-sop');
+  if (result) {
+    document.getElementById('res-sop').textContent = result;
+    document.getElementById('out-sop').style.display = 'block';
+  }
+}
+
+// init pricing
+recalc();
+</script>
+</body>
+</html>
