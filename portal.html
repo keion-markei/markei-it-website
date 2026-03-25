@@ -327,6 +327,57 @@
   .badge-ok { padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; background: rgba(0,184,148,0.14); color: var(--green); }
   .badge-err { padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; background: rgba(225,112,85,0.14); color: var(--red); }
 
+  /* ── CRM ── */
+  .crm-toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; gap:12px; flex-wrap:wrap; }
+  .crm-filters { display:flex; gap:6px; flex-wrap:wrap; }
+  .stage-pill {
+    padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600;
+    cursor:pointer; border:1px solid var(--border); background:transparent;
+    color:var(--text-muted); font-family:var(--font); transition:all .15s;
+  }
+  .stage-pill:hover { border-color:var(--border-active); color:var(--text); }
+  .stage-pill.active { background:var(--accent-glow); color:var(--accent-light); border-color:rgba(108,92,231,0.3); }
+  .crm-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .crm-table th { font-size:10px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--text-dim); padding:8px 12px; text-align:left; border-bottom:1px solid var(--border); }
+  .crm-table td { padding:10px 12px; border-bottom:1px solid var(--border); color:var(--text-muted); vertical-align:middle; }
+  .crm-table tr:hover td { background:var(--surface2); }
+  .crm-table td:first-child { color:var(--text); font-weight:500; }
+  .stage-badge {
+    padding:2px 8px; border-radius:20px; font-size:10px; font-weight:600;
+    white-space:nowrap; display:inline-block;
+  }
+  .s-lead { background:rgba(108,92,231,.15); color:#a29bfe; }
+  .s-contacted { background:rgba(0,206,201,.12); color:#00cec9; }
+  .s-followup { background:rgba(253,203,110,.15); color:#c9961a; }
+  .s-assessment { background:rgba(116,185,255,.15); color:#74b9ff; }
+  .s-proposal { background:rgba(162,155,254,.15); color:#a29bfe; }
+  .s-negotiating { background:rgba(253,203,110,.2); color:#e0a800; }
+  .s-won { background:rgba(0,184,148,.15); color:#00b894; }
+  .s-lost { background:rgba(225,112,85,.12); color:#e17055; }
+  .crm-empty { text-align:center; padding:3rem; color:var(--text-dim); font-size:13px; }
+  .crm-actions { display:flex; gap:6px; }
+  .act-btn { padding:3px 10px; font-size:11px; border-radius:6px; cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--text-muted); font-family:var(--font); transition:all .15s; }
+  .act-btn:hover { border-color:var(--border-active); color:var(--text); }
+  .act-btn.danger:hover { border-color:rgba(225,112,85,.4); color:var(--red); }
+  .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(4px); z-index:200; align-items:center; justify-content:center; }
+  .modal-bg.open { display:flex; }
+  .crm-modal {
+    background:var(--surface); border:1px solid var(--border-active);
+    border-radius:20px; padding:2rem; width:520px; max-width:92vw;
+    max-height:88vh; overflow-y:auto;
+  }
+  .crm-modal h3 { font-size:16px; font-weight:600; margin-bottom:1.25rem; }
+  .mfg2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .mfield { margin-bottom:10px; }
+  .mfield:last-child { margin-bottom:0; }
+  .summary-row { display:flex; justify-content:space-between; padding:6px 0; font-size:12px; border-bottom:1px solid var(--border); }
+  .summary-row:last-child { border:none; }
+  .summary-row .sk { color:var(--text-muted); }
+  .crm-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:1.25rem; }
+  .crm-stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:10px 12px; }
+  .crm-stat .sv { font-size:20px; font-weight:600; }
+  .crm-stat .sl { font-size:10px; color:var(--text-muted); margin-top:1px; }
+
   /* ── API key settings ── */
   .settings-section { margin-bottom: 2rem; }
   .settings-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
@@ -405,6 +456,10 @@
       <div class="sidebar-item" id="snav-sop" onclick="switchPortalTab('pipeline'); switchPipTab('sop')">
         <span class="sidebar-icon">④</span> SOP builder
       </div>
+      <div class="sidebar-section">Sales</div>
+      <div class="sidebar-item" id="snav-crm" onclick="switchPortalTab('crm')">
+        <span class="sidebar-icon">◎</span> Prospects CRM
+      </div>
       <div class="sidebar-section">Account</div>
       <div class="sidebar-item" id="snav-settings" onclick="switchPortalTab('settings')">
         <span class="sidebar-icon">⚙</span> Settings
@@ -440,6 +495,11 @@
             <div class="wc-icon">📁</div>
             <div class="wc-title">SOP builder</div>
             <div class="wc-desc">Generate field-ready standard operating procedures for any client environment.</div>
+          </div>
+          <div class="welcome-card" onclick="switchPortalTab('crm')">
+            <div class="wc-icon">◎</div>
+            <div class="wc-title">Prospects CRM</div>
+            <div class="wc-desc">Track leads, follow-ups, and deals from first contact to closed client.</div>
           </div>
         </div>
       </div>
@@ -672,6 +732,138 @@
 
       </div><!-- /tp-pipeline -->
 
+      <!-- CRM -->
+      <div id="tp-crm" class="tool-panel">
+        <div class="tool-header">
+          <div class="tool-title">Prospects CRM</div>
+          <div class="tool-desc">Track every lead from first contact to closed deal.</div>
+        </div>
+        <div class="crm-stats">
+          <div class="crm-stat"><div class="sv" id="cs-total">0</div><div class="sl">Total prospects</div></div>
+          <div class="crm-stat"><div class="sv" id="cs-active" style="color:var(--teal)">0</div><div class="sl">Active pipeline</div></div>
+          <div class="crm-stat"><div class="sv" id="cs-won" style="color:var(--green)">0</div><div class="sl">Clients won</div></div>
+          <div class="crm-stat"><div class="sv" id="cs-value" style="color:var(--accent-light)">$0</div><div class="sl">Monthly pipeline value</div></div>
+        </div>
+        <div class="crm-toolbar">
+          <div class="crm-filters" id="crm-filters">
+            <button class="stage-pill active" data-stage="all" onclick="filterCRM('all',this)">All</button>
+            <button class="stage-pill" data-stage="Lead" onclick="filterCRM('Lead',this)">Lead</button>
+            <button class="stage-pill" data-stage="Contacted" onclick="filterCRM('Contacted',this)">Contacted</button>
+            <button class="stage-pill" data-stage="Follow-up scheduled" onclick="filterCRM('Follow-up scheduled',this)">Follow-up</button>
+            <button class="stage-pill" data-stage="Assessment sent" onclick="filterCRM('Assessment sent',this)">Assessment</button>
+            <button class="stage-pill" data-stage="Proposal sent" onclick="filterCRM('Proposal sent',this)">Proposal</button>
+            <button class="stage-pill" data-stage="Negotiating" onclick="filterCRM('Negotiating',this)">Negotiating</button>
+            <button class="stage-pill" data-stage="Closed — won" onclick="filterCRM('Closed — won',this)">Won</button>
+            <button class="stage-pill" data-stage="Closed — lost" onclick="filterCRM('Closed — lost',this)">Lost</button>
+          </div>
+          <button class="btn btn-primary" onclick="openProspectModal()">+ Add prospect</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table class="crm-table">
+            <thead>
+              <tr>
+                <th>Business</th>
+                <th>Contact</th>
+                <th>Type</th>
+                <th>Stage</th>
+                <th>Value</th>
+                <th>Last contact</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="crm-tbody"></tbody>
+          </table>
+          <div class="crm-empty" id="crm-empty" style="display:none">No prospects yet — add your first one above.</div>
+        </div>
+      </div>
+
+      <!-- Prospect modal -->
+      <div class="modal-bg" id="prospect-modal">
+        <div class="crm-modal">
+          <h3 id="modal-title">Add prospect</h3>
+          <input type="hidden" id="modal-id"/>
+          <div class="mfg2">
+            <div class="mfield">
+              <label class="lbl">Business name</label>
+              <input type="text" id="m-biz" placeholder="Acme Property Mgmt"/>
+            </div>
+            <div class="mfield">
+              <label class="lbl">Contact name</label>
+              <input type="text" id="m-contact" placeholder="John Smith"/>
+            </div>
+          </div>
+          <div class="mfg2">
+            <div class="mfield">
+              <label class="lbl">Phone</label>
+              <input type="text" id="m-phone" placeholder="(410) 555-0100"/>
+            </div>
+            <div class="mfield">
+              <label class="lbl">Email</label>
+              <input type="text" id="m-email" placeholder="john@acme.com"/>
+            </div>
+          </div>
+          <div class="mfg2">
+            <div class="mfield">
+              <label class="lbl">Business type</label>
+              <select id="m-type">
+                <option>Small business</option>
+                <option>Apartment complex</option>
+                <option>Retirement community</option>
+                <option>Medical / dental office</option>
+                <option>Nonprofit</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="mfield">
+              <label class="lbl">Stage</label>
+              <select id="m-stage">
+                <option>Lead</option>
+                <option>Contacted</option>
+                <option>Follow-up scheduled</option>
+                <option>Assessment sent</option>
+                <option>Proposal sent</option>
+                <option>Negotiating</option>
+                <option>Closed — won</option>
+                <option>Closed — lost</option>
+              </select>
+            </div>
+          </div>
+          <div class="mfg2">
+            <div class="mfield">
+              <label class="lbl">Devices / users</label>
+              <input type="text" id="m-devices" placeholder="12 devices / 10 users"/>
+            </div>
+            <div class="mfield">
+              <label class="lbl">Est. monthly value ($)</label>
+              <input type="number" id="m-value" placeholder="449" min="0"/>
+            </div>
+          </div>
+          <div class="mfield">
+            <label class="lbl">Source</label>
+            <select id="m-source">
+              <option>Referral</option>
+              <option>Cold outreach</option>
+              <option>LinkedIn</option>
+              <option>Networking</option>
+              <option>Website</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="mfield">
+            <label class="lbl">Follow-up date</label>
+            <input type="date" id="m-followup"/>
+          </div>
+          <div class="mfield">
+            <label class="lbl">Notes</label>
+            <textarea id="m-notes" placeholder="Key details from your conversation..."></textarea>
+          </div>
+          <div class="btn-row" style="margin-top:1.25rem;justify-content:flex-end">
+            <button class="btn" onclick="closeProspectModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveProspect()">Save prospect</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Settings -->
       <div id="tp-settings" class="tool-panel">
         <div class="tool-header">
@@ -710,7 +902,7 @@ const GOOGLE_CLIENT_ID = '944916111699-v1mjs09ut6562odh2a7fpsci5mrsk9ho.apps.goo
 // 2. Add every Google email that should have access
 const ALLOWED_EMAILS = [
   'keion@markeienterprises.com',
-  'marissa@markeienterprises.com',
+  // 'marissa@markeienterprises.com',
   // add more as needed
 ];
 
@@ -782,11 +974,12 @@ function signOut() {
 // PORTAL NAVIGATION
 // ════════════════════════════════════
 function switchPortalTab(id) {
-  ['home','pipeline','settings'].forEach(t => {
+  ['home','pipeline','crm','settings'].forEach(t => {
     document.getElementById('tp-'+t).classList.toggle('active', t===id);
     const nav = document.getElementById('snav-'+t);
     if (nav) nav.classList.toggle('active', t===id);
   });
+  if (id === 'crm') renderCRM();
 }
 
 function switchPipTab(id) {
@@ -1015,6 +1208,153 @@ Plain text. ALL CAPS section headers. Practical and field-ready.`;
     document.getElementById('res-sop').textContent = result;
     document.getElementById('out-sop').style.display = 'block';
   }
+}
+
+// ════════════════════════════════════
+// CRM
+// ════════════════════════════════════
+let crmFilter = 'all';
+let editingId = null;
+
+function loadProspects() {
+  try { return JSON.parse(localStorage.getItem('markei_prospects') || '[]'); } catch { return []; }
+}
+function saveProspects(arr) {
+  localStorage.setItem('markei_prospects', JSON.stringify(arr));
+}
+
+const stageClass = {
+  'Lead':'s-lead','Contacted':'s-contacted','Follow-up scheduled':'s-followup',
+  'Assessment sent':'s-assessment','Proposal sent':'s-proposal',
+  'Negotiating':'s-negotiating','Closed — won':'s-won','Closed — lost':'s-lost'
+};
+
+function renderCRM() {
+  const prospects = loadProspects();
+  const filtered = crmFilter === 'all' ? prospects : prospects.filter(p => p.stage === crmFilter);
+  const tbody = document.getElementById('crm-tbody');
+  const empty = document.getElementById('crm-empty');
+
+  const active = prospects.filter(p => !['Closed — won','Closed — lost'].includes(p.stage));
+  const won = prospects.filter(p => p.stage === 'Closed — won');
+  const pipelineValue = active.reduce((s,p) => s + (parseInt(p.value)||0), 0);
+  document.getElementById('cs-total').textContent = prospects.length;
+  document.getElementById('cs-active').textContent = active.length;
+  document.getElementById('cs-won').textContent = won.length;
+  document.getElementById('cs-value').textContent = '$'+pipelineValue.toLocaleString();
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    empty.textContent = crmFilter === 'all' ? 'No prospects yet — add your first one above.' : 'No prospects in this stage.';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = filtered.map(p => {
+    const sc = stageClass[p.stage] || 's-lead';
+    const val = p.value ? '$'+parseInt(p.value).toLocaleString()+'/mo' : '—';
+    const lastContact = p.followup || '—';
+    return `<tr>
+      <td>${p.biz || '—'}</td>
+      <td style="font-size:12px">${p.contact || '—'}<br><span style="color:var(--text-dim);font-size:11px">${p.email || ''}</span></td>
+      <td style="font-size:11px;color:var(--text-dim)">${p.type || '—'}</td>
+      <td><span class="stage-badge ${sc}">${p.stage}</span></td>
+      <td style="color:var(--accent-light);font-weight:500">${val}</td>
+      <td style="font-size:11px;color:var(--text-dim)">${lastContact}</td>
+      <td><div class="crm-actions">
+        <button class="act-btn" onclick="editProspect('${p.id}')">Edit</button>
+        <button class="act-btn" onclick="moveStage('${p.id}')">Advance</button>
+        <button class="act-btn danger" onclick="deleteProspect('${p.id}')">Delete</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterCRM(stage, el) {
+  crmFilter = stage;
+  document.querySelectorAll('.stage-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderCRM();
+}
+
+function openProspectModal(id) {
+  editingId = id || null;
+  document.getElementById('modal-title').textContent = id ? 'Edit prospect' : 'Add prospect';
+  if (id) {
+    const p = loadProspects().find(x => x.id === id);
+    if (p) {
+      document.getElementById('m-biz').value = p.biz || '';
+      document.getElementById('m-contact').value = p.contact || '';
+      document.getElementById('m-phone').value = p.phone || '';
+      document.getElementById('m-email').value = p.email || '';
+      document.getElementById('m-type').value = p.type || 'Small business';
+      document.getElementById('m-stage').value = p.stage || 'Lead';
+      document.getElementById('m-devices').value = p.devices || '';
+      document.getElementById('m-value').value = p.value || '';
+      document.getElementById('m-source').value = p.source || 'Referral';
+      document.getElementById('m-followup').value = p.followup || '';
+      document.getElementById('m-notes').value = p.notes || '';
+    }
+  } else {
+    ['m-biz','m-contact','m-phone','m-email','m-devices','m-value','m-followup','m-notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('m-stage').value = 'Lead';
+    document.getElementById('m-source').value = 'Referral';
+  }
+  document.getElementById('prospect-modal').classList.add('open');
+}
+
+function closeProspectModal() {
+  document.getElementById('prospect-modal').classList.remove('open');
+  editingId = null;
+}
+
+function saveProspect() {
+  const prospects = loadProspects();
+  const data = {
+    id: editingId || 'p_' + Date.now(),
+    biz: document.getElementById('m-biz').value.trim(),
+    contact: document.getElementById('m-contact').value.trim(),
+    phone: document.getElementById('m-phone').value.trim(),
+    email: document.getElementById('m-email').value.trim(),
+    type: document.getElementById('m-type').value,
+    stage: document.getElementById('m-stage').value,
+    devices: document.getElementById('m-devices').value.trim(),
+    value: document.getElementById('m-value').value,
+    source: document.getElementById('m-source').value,
+    followup: document.getElementById('m-followup').value,
+    notes: document.getElementById('m-notes').value.trim(),
+    updated: new Date().toISOString()
+  };
+  if (!data.biz) { alert('Business name is required.'); return; }
+  if (editingId) {
+    const idx = prospects.findIndex(p => p.id === editingId);
+    if (idx > -1) prospects[idx] = data;
+  } else {
+    prospects.unshift(data);
+  }
+  saveProspects(prospects);
+  closeProspectModal();
+  renderCRM();
+}
+
+function editProspect(id) { openProspectModal(id); }
+
+function deleteProspect(id) {
+  if (!confirm('Delete this prospect?')) return;
+  saveProspects(loadProspects().filter(p => p.id !== id));
+  renderCRM();
+}
+
+const stageOrder = ['Lead','Contacted','Follow-up scheduled','Assessment sent','Proposal sent','Negotiating','Closed — won'];
+function moveStage(id) {
+  const prospects = loadProspects();
+  const p = prospects.find(x => x.id === id);
+  if (!p) return;
+  const idx = stageOrder.indexOf(p.stage);
+  if (idx < stageOrder.length - 1) p.stage = stageOrder[idx + 1];
+  p.updated = new Date().toISOString();
+  saveProspects(prospects);
+  renderCRM();
 }
 
 // init pricing
