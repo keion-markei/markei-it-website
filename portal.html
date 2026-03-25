@@ -705,7 +705,7 @@
 // ════════════════════════════════════
 
 // 1. Replace with your Google OAuth Client ID from console.cloud.google.com
-const GOOGLE_CLIENT_ID = '944916111699-v1mjs09ut6562odh2a7fpsci5mrsk9ho.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 
 // 2. Add every Google email that should have access
 const ALLOWED_EMAILS = [
@@ -934,7 +934,7 @@ function copyOut(id, btn) {
 // ════════════════════════════════════
 async function runAssessment() {
   const c = getCtx();
-  const prompt = `You are Keion Dorsey, founder of MarKei IT Services, a certified IT professional (A+, Network+, Security+, PMP, ITIL v4) based in Baltimore, MD. Write an internal IT assessment summary for a prospective client.
+  const prompt = `You are Keion Williams, founder of MarKei IT Services, a certified IT professional (A+, Network+, Security+, PMP, ITIL v4) based in Baltimore, MD. Write an internal IT assessment summary for a prospective client.
 
 Client: ${c.bizName} (${c.bizType}) | Contact: ${c.contact}
 Users: ${c.users} | Devices: ${c.devices} | OS: ${c.os}
@@ -962,7 +962,7 @@ async function runProposal() {
   const focusMap = { value:'value and ROI', security:'security risks and liability', support:'reliability and peace of mind', growth:'scalability' };
   const tierNames = { essential:'Essential ($199/mo)', professional:'Professional ($449/mo)', enterprise:'Enterprise ($849/mo)' };
 
-  const prompt = `You are Keion Dorsey, founder of MarKei IT Services, a certified IT professional (A+, Network+, Security+, PMP, ITIL v4), 10+ years experience, Baltimore MD. Write a client proposal letter.
+  const prompt = `You are Keion Williams, founder of MarKei IT Services, a certified IT professional (A+, Network+, Security+, PMP, ITIL v4), 10+ years experience, Baltimore MD. Write a client proposal letter.
 
 Client: ${c.bizName} | Contact: ${c.contact} | Type: ${c.bizType}
 Users: ${c.users} | Devices: ${c.devices} | Pain points: ${c.pains}
@@ -979,7 +979,7 @@ Write a complete proposal letter (250-350 words):
 - Clear call to action (schedule 30-min call or sign agreement)
 - P.S. line with urgency or added value
 
-Sign off: Keion Dorsey, MarKei IT Services | keion@markeienterprises.com | markeienterprises.com
+Sign off: Keion Williams, MarKei IT Services | keion@markeienterprises.com | markeienterprises.com
 Plain text, natural paragraph breaks, no markdown.`;
 
   const result = await callClaude(prompt, 'st-proposal', 'btn-proposal');
@@ -994,7 +994,7 @@ async function runSOP() {
   const sopMap = { onboarding:'Client onboarding', offboarding:'Device offboarding', incident:'Security incident response', backup:'Backup verification', patch:'Patch management', new_user:'New user setup', network:'Network troubleshooting' };
   const detailMap = { standard:'Standard for experienced technician', detailed:'Fully detailed step-by-step with exact paths and commands', brief:'Checklist format only' };
 
-  const prompt = `You are Keion Dorsey, founder of MarKei IT Services. Write an internal SOP for your technician team.
+  const prompt = `You are Keion Williams, founder of MarKei IT Services. Write an internal SOP for your technician team.
 
 SOP type: ${sopMap[document.getElementById('sop-type').value]}
 Detail level: ${detailMap[document.getElementById('sop-detail').value]}
