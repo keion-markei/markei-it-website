@@ -832,11 +832,11 @@
           <div class="mfg2">
             <div class="mfield">
               <label class="lbl">Number of devices</label>
-              <input type="number" id="m-devices" placeholder="12" min="0"/>
+              <input type="number" id="crm-devices" placeholder="12" min="0"/>
             </div>
             <div class="mfield">
               <label class="lbl">Number of users</label>
-              <input type="number" id="m-users" placeholder="10" min="0"/>
+              <input type="number" id="crm-users" placeholder="10" min="0"/>
             </div>
           </div>
           <div class="mfg2">
@@ -1370,15 +1370,15 @@ function openProspectModal(id) {
       document.getElementById('m-email').value = p.email || '';
       document.getElementById('m-type').value = p.type || 'Small business';
       document.getElementById('m-stage').value = p.stage || 'Lead';
-      document.getElementById('m-devices').value = p.devices || '';
-      document.getElementById('m-users').value = p.users || '';
+      document.getElementById('crm-devices').value = p.devices || '';
+      document.getElementById('crm-users').value = p.users || '';
       document.getElementById('m-value').value = p.value || '';
       document.getElementById('m-source').value = p.source || 'Referral';
       document.getElementById('m-followup').value = p['follow-up'] || p.followup || '';
       document.getElementById('m-notes').value = p.notes || '';
     }
   } else {
-    ['m-biz','m-contact','m-phone','m-email','m-devices','m-users','m-value','m-followup','m-notes'].forEach(fid => document.getElementById(fid).value = '');
+    ['m-biz','m-contact','m-phone','m-email','crm-devices','crm-users','m-value','m-followup','m-notes'].forEach(fid => document.getElementById(fid).value = '');
     document.getElementById('m-stage').value = 'Lead';
     document.getElementById('m-source').value = 'Referral';
   }
@@ -1404,8 +1404,8 @@ async function saveProspect() {
     email: document.getElementById('m-email').value.trim(),
     type: document.getElementById('m-type').value,
     stage: document.getElementById('m-stage').value,
-    devices: document.getElementById('m-devices').value.trim(),
-    users: document.getElementById('m-users').value.trim(),
+    devices: document.getElementById('crm-devices').value.trim(),
+    users: document.getElementById('crm-users').value.trim(),
     value: document.getElementById('m-value').value,
     source: document.getElementById('m-source').value,
     followup: document.getElementById('m-followup').value,
