@@ -534,6 +534,9 @@
                   <option value="apartment">Apartment complex</option>
                   <option value="medical">Medical / dental office</option>
                   <option value="nonprofit">Nonprofit</option>
+                  <option value="residential_senior">Residential — senior / retired</option>
+                  <option value="residential_wfh">Residential — work from home</option>
+                  <option value="residential_general">Residential — general</option>
                   <option value="other">Other</option>
                 </select>
               </div>
@@ -812,6 +815,9 @@
                 <option>Retirement community</option>
                 <option>Medical / dental office</option>
                 <option>Nonprofit</option>
+                <option>Residential — senior / retired</option>
+                <option>Residential — work from home</option>
+                <option>Residential — general</option>
                 <option>Other</option>
               </select>
             </div>
@@ -1070,7 +1076,7 @@ function getCtx() {
   if (document.getElementById('os-win').checked) os.push('Windows');
   if (document.getElementById('os-mac').checked) os.push('macOS');
   if (document.getElementById('os-mixed').checked) os.push('mixed');
-  const btMap = {small_business:'small business',retirement:'retirement community',apartment:'apartment complex',medical:'medical/dental office',nonprofit:'nonprofit',other:'organization'};
+  const btMap = {small_business:'small business',retirement:'retirement community',apartment:'apartment complex',medical:'medical/dental office',nonprofit:'nonprofit',residential_senior:'residential (senior/retired)',residential_wfh:'residential (work from home)',residential_general:'residential',other:'organization'};
   return {
     bizName: document.getElementById('biz-name').value || 'the client',
     contact: document.getElementById('contact-name').value || 'Decision Maker',
@@ -1304,6 +1310,10 @@ async function renderCRM() {
   }
   empty.style.display = 'none';
   tbody.innerHTML = filtered.map(p => {
+    const isResidential = (p.type||'').toLowerCase().includes('residential');
+    const typeDisplay = isResidential
+      ? `<span style="background:rgba(0,206,201,0.12);color:#00cec9;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600">${p.type||'—'}</span>`
+      : `<span style="font-size:11px;color:var(--text-dim)">${p.type||'—'}</span>`;
     const sc = stageClass[p.stage] || 's-lead';
     const val = p.value ? '$'+parseInt(p.value).toLocaleString()+'/mo' : '—';
     const followup = p['follow-up'] || p.followup || '—';
@@ -1311,7 +1321,7 @@ async function renderCRM() {
     return `<tr>
       <td>${p.business||p.biz||'—'}</td>
       <td style="font-size:12px">${p.contact||'—'}<br><span style="color:var(--text-dim);font-size:11px">${p.email||''}</span></td>
-      <td style="font-size:11px;color:var(--text-dim)">${p.type||'—'}</td>
+      <td>${typeDisplay}</td>
       <td><span class="stage-badge ${sc}">${p.stage||'Lead'}</span></td>
       <td style="color:var(--accent-light);font-weight:500">${val}</td>
       <td style="font-size:11px;color:var(--text-dim)">${followup}</td>
